@@ -1,10 +1,8 @@
-import './App.css';
+import Main from './components/Main';
 
 function App() {
   return (
-    <div className="bg-slate-600 text-3xl">
-      <h1 className="text-xl">Hello</h1>
-    </div>
+    <Main/>
   );
 }
 
