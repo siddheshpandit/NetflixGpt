@@ -1,12 +1,83 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Header from "./Header";
-
+import { checkValidData } from "../utils/validate";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  updateProfile,
+} from "firebase/auth";
+import { auth } from "../utils/firebase";
+import {useNavigate} from 'react-router-dom';
+import { addUser, removeUser } from "../store/userSlice";
+import { useDispatch} from 'react-redux'
 const Login = () => {
+  const dispatch= useDispatch();
+  const navigate= useNavigate();
   const [isSignInForm, setIsSignInForm] = useState(true);
-
-  const toggleForm=()=>{
+  const email = useRef(null);
+  const password = useRef(null);
+  const firstName = useRef(null);
+  const lastName = useRef(null);
+  const [errorMessage, setErrorMessage] = useState();
+  const toggleForm = () => {
     setIsSignInForm(!isSignInForm);
-  }
+  };
+  const handleFormValidation = () => {
+    let message;
+    if (isSignInForm) {
+      message = checkValidData(email.current.value, password.current.value);
+    } else {
+      message = checkValidData(
+        email.current.value,
+        password.current.value,
+        firstName.current.value,
+      );
+    }
+    setErrorMessage(message);
+    if (message) return;
+    if (!isSignInForm) {
+      // Signup
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value,
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          updateProfile(user, {
+            displayName: firstName.current.value
+          }).then(() => {
+            const {uid,displayName,email} = auth.currentUser;
+            dispatch(addUser({uid,displayName,email}));
+            navigate("/browse")
+          }).catch((error) => {
+            // An error occurred
+            // ...
+          });
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode + "-" + errorMessage);
+          setErrorMessage(errorCode.split("/"))
+        });
+    } else {
+      // sign in
+      signInWithEmailAndPassword(auth, email.current.value, password.current.value)
+        .then((userCredential) => {
+          // Signed in
+          // const user = userCredential.user;
+          navigate("/browse")
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMessage(errorCode.split("/"))
+        });
+    }
+  };
   return (
     <div>
       <Header />
@@ -16,34 +87,57 @@ const Login = () => {
           alt=""
         />
       </div>
-      <div>
-        <form className="absolute w-3/12 mt-24 mx-auto right-0 left-0 p-8 bg-black opacity-85 text-white">
-          <h1 className="font-bold text-3xl mb-4 pb-2">{isSignInForm?'Sign In':'Sign Up'}</h1>
-          {isSignInForm &&(<><input
-            type="text"
-            placeholder="First Name"
-            className="p-3.5 my-2 w-full rounded-md bg-black border"
-          />
+      <div className="">
+        <form
+          onSubmit={(e) => e.preventDefault()}
+          className="absolute w-3/12 p-16 mt-24 mx-auto right-0 left-0 bg-black opacity-85 text-white"
+        >
+          <h1 className="font-bold text-3xl mb-4 pb-2">
+            {isSignInForm ? "Sign In" : "Sign Up"}
+          </h1>
+          {!isSignInForm && (
+            <div>
+              <input
+                ref={firstName}
+                type="text"
+                placeholder="First Name"
+                className="p-3.5 my-2 w-full rounded-md bg-black border"
+              />
+              <input
+                ref={lastName}
+                type="text"
+                placeholder="Last Name"
+                className="p-3.5 my-2 w-full rounded-md bg-black border"
+              />
+            </div>
+          )}
+
           <input
-            type="text"
-            placeholder="Last Name"
-            className="p-3.5 my-2 w-full rounded-md bg-black border"
-          /></>)}
-          
-          <input
+            ref={email}
             type="text"
             placeholder="Email or phone number"
             className="p-3.5 my-2 w-full rounded-md bg-black border"
           />
           <input
+            ref={password}
             type="password"
             placeholder="Password"
             className="p-3.5 my-2 w-full rounded-md bg-black font-semibold border"
           />
-          <button className="p-2 my-2 bg-red w-full bg-[red] text-l rounded-md font-semibold">
-          {isSignInForm?'Sign In':'Sign Up'}
+          <p className="text-red-500">{errorMessage}</p>
+          <button
+            type="submit"
+            className="p-2 my-2 bg-red w-full bg-[red] text-l rounded-md font-semibold"
+            onClick={handleFormValidation}
+          >
+            {isSignInForm ? "Sign In" : "Sign Up"}
           </button>
-          <p className="text-[rgba(255,255,255,0.7)]">{isSignInForm?'New to Netflix?':'Already have an account?'} <span onClick={toggleForm} className="text-white cursor-pointer">{isSignInForm?'Sign up now.':'Sign In'} </span></p>
+          <p className="text-[rgba(255,255,255,0.7)]">
+            {isSignInForm ? "New to Netflix?" : "Already have an account?"}{" "}
+            <span onClick={toggleForm} className="text-white cursor-pointer">
+              {isSignInForm ? "Sign up now." : "Sign In"}{" "}
+            </span>
+          </p>
         </form>
       </div>
     </div>

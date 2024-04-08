@@ -1,6 +1,7 @@
 # Project Features
 - Login/Signup
     - SignIn/SignUp Forms
+        - Form Validations
 - Browse (After authentication)
     - Header
     - Main Body
