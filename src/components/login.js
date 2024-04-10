@@ -9,6 +9,7 @@ import {
 import { auth } from "../utils/firebase";
 import { addUser } from "../store/userSlice";
 import { useDispatch} from 'react-redux'
+import { BACKGROUND_URL } from "../utils/constants";
 const Login = () => {
   const dispatch= useDispatch();
   const [isSignInForm, setIsSignInForm] = useState(true);
@@ -78,7 +79,7 @@ const Login = () => {
       <Header />
       <div className="bg-gradient-to-b from-black absolute">
         <img
-          src="https://assets.nflxext.com/ffe/siteui/vlv3/7ca5b7c7-20aa-42a8-a278-f801b0d65fa1/fb548c0a-8582-43c5-9fba-cd98bf27452f/IN-en-20240326-popsignuptwoweeks-perspective_alpha_website_large.jpg"
+          src={BACKGROUND_URL}
           alt=""
         />
       </div>

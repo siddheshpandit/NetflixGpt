@@ -4,7 +4,7 @@ import { BsInfoCircle } from "react-icons/bs";
 const VideoTitle = ({title,overview}) => {
   return (
     <div className='pl-20 pt-[20%] absolute text-white w-screen aspect-video bg-gradient-to-r from-black'>
-        <h2 className='text-2xl font-bold'>{title}</h2>
+        <h2 className='text-3xl font-bold'>{title}</h2>
         <p className='w-1/4 my-3'>{overview}</p>
         <div className='flex'>
             <button className='bg-white text-black py-1 px-6 rounded-md text-md flex items-center hover:bg-opacity-80'><IoPlaySharp className='mr-1'/> Play</button>

@@ -16,7 +16,7 @@ const Main = () => {
     ])
     
   return (
-    <div>
+    <div className=''>
         <RouterProvider router={appRouter}/>
     </div>
   )
